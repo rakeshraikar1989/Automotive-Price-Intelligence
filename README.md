@@ -207,3 +207,8 @@ The project demonstrates an end-to-end machine learning workflow covering explor
 
 The tuned Gradient Boosting model demonstrated the strongest overall performance among the evaluated tuned candidates on the independent test dataset.
 
+## Use of AI Tools
+
+AI tools, including ChatGPT, were used as supporting resources during project development. They assisted with understanding machine learning concepts, troubleshooting errors, reviewing code, improving documentation, and refining the project workflow.
+
+The project was developed through hands-on implementation, execution, testing, and verification. AI assistance supported the learning and problem-solving process, while project decisions and final results were reviewed during development.
