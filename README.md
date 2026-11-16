@@ -58,58 +58,47 @@ Hyperparameter optimisation was performed using RandomizedSearchCV with five-fol
 
 ## Final Model Performance
 
-The tuned Gradient Boosting model was selected as the recommended model.
+The final model was selected programmatically using repeated cross-validation on training data. The independent holdout set was evaluated only after selection.
 
 | Metric | Result |
 |---|---:|
-| Cross-validation MAE | 1464.09 |
-| Test MAE | 1506.68 |
-| Test RMSE | 2275.75 |
-| Test R² | 0.9577 |
-| Test MAPE | 9.55% |
+| Selected model | Gradient Boosting |
+| Repeated-CV MAE | 1535.23 |
+| Holdout MAE | 1506.68 |
+| Holdout RMSE | 2275.75 |
+| Holdout R² | 0.9577 |
+| Holdout MAPE | 9.55% |
 
-The independent test dataset contained 41 records.
+The holdout contains 41 records. See the model comparison report and notebook for bootstrap intervals and limitations.
+
+
+
+Hyperparameter tuning and model selection use the same cross-validation framework. The best CV estimate may therefore be optimistic. The independent holdout provides a separate final performance assessment.
 
 ## Key Findings
 
-- Engine size, curb weight, vehicle width and horsepower were among the most important features for the selected model.
-- Vehicle characteristics showed different relationships with price.
-- Premium and high-performance vehicles formed part of the higher-priced observations.
-- Gradient Boosting achieved the strongest overall test-set performance among the tuned models.
+- curb_weight: mean validation permutation importance 1137.83
+- engine_size: mean validation permutation importance 410.98
+- horsepower: mean validation permutation importance 319.53
+- width: mean validation permutation importance 290.84
+- wheel_base: mean validation permutation importance 196.77
 
-Feature importance describes model reliance on predictors and should not be interpreted as proof of causation.
+These are predictive associations, not causal effects. Importance estimates can be unstable for correlated features and small folds.
 
 ## Project Structure
 
-Automotive-Price-Intelligence/
-|
-|-- data/
-|   |-- raw/
-|   |-- processed/
-|
-|-- notebooks/
-|   |-- Automotive_Price_Intelligence_and_Prediction.ipynb
-|
-|-- src/
-|   |-- predict.py
-|
-|-- models/
-|   |-- automotive_price_prediction_model.joblib
-|
-|-- visualizations/
-|
-|-- reports/
-|   |-- model_comparison_report.md
-|   |-- challenges_faced_report.md
-|
-|-- tests/
-|   |-- test_prediction.py
-|
-|-- documentation/
-|
-|-- requirements.txt
-|-- .gitignore
-|-- README.md
+Automotive-Evaluation-Improvements/
+- data/raw/auto_imports.csv
+- notebooks/Automotive_Price_Intelligence_Improved_Copy.ipynb
+- src/predict.py
+- models/automotive_price_prediction_model.joblib
+- visualizations/ (9 charts)
+- reports/model_comparison_report.md
+- reports/challenges_faced_report.md
+- tests/test_prediction.py
+- requirements.txt
+- .gitignore
+- README.md
 
 ## Installation
 
@@ -135,28 +124,21 @@ Start Jupyter Notebook:
 
 Open the following notebook:
 
-    notebooks/Automotive_Price_Intelligence_and_Prediction.ipynb
+    notebooks/Automotive_Price_Intelligence_Improved_Copy.ipynb
 
 Select the appropriate Python environment and execute the notebook cells in order.
 
 ## Making a Prediction
 
-The reusable prediction module is located at:
+Run this Python example from the project root:
 
-    src/predict.py
-
-Example usage:
-
-    from src.predict import predict_vehicle_price
-
-    vehicle = {
-        # Supply all 25 required vehicle features.
-    }
-
-    predicted_price = predict_vehicle_price(vehicle)
-    print(predicted_price)
-
-The prediction function validates the supplied feature names and loads the saved model automatically.
+```python
+from src.predict import predict_vehicle_price
+from tests.test_prediction import get_valid_vehicle
+vehicle = get_valid_vehicle()
+predicted_price = predict_vehicle_price(vehicle)
+print(f'Predicted vehicle price: {predicted_price:.2f}')
+```
 
 ## Automated Testing
 
@@ -191,7 +173,7 @@ These visualisations cover:
 - Numerical features against price.
 - Final model diagnostics.
 - Feature importance.
-- Automobile price distribution.
+- Vehicle price by engine type.
 
 ## Limitations
 
@@ -203,12 +185,12 @@ These visualisations cover:
 
 ## Conclusion
 
-The project demonstrates an end-to-end machine learning workflow covering exploratory data analysis, data preprocessing, model comparison, hyperparameter optimisation, model evaluation, model persistence, reusable prediction functionality and automated testing.
+The model selected using training-only repeated cross-validation was **Gradient Boosting**.
 
-The tuned Gradient Boosting model demonstrated the strongest overall performance among the evaluated tuned candidates on the independent test dataset.
+On the independent holdout set of 41 records:
+- MAE: 1506.68 dataset price units
+- RMSE: 2275.75 dataset price units
+- R²: 0.9577
+- MAPE: 9.55%
 
-## Use of AI Tools
-
-AI tools, including ChatGPT, were used as supporting resources during project development. They assisted with understanding machine learning concepts, troubleshooting errors, reviewing code, improving documentation, and refining the project workflow.
-
-The project was developed through hands-on implementation, execution, testing, and verification. AI assistance supported the learning and problem-solving process, while project decisions and final results were reviewed during development.
+This historical, small-sample model is a demonstration prototype, not a current-market commercial pricing tool. It requires recent representative data, external validation, monitoring and fairness assessment before deployment.

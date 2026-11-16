@@ -1,89 +1,47 @@
 # Automotive Price Intelligence & Prediction
-## Model Comparison Report
+## Model Comparison Report — Evaluation Improvements
 
-### 1. Objective
+### Evaluation Design
+- Dataset records: 201
+- Training records: 160
+- Independent holdout records: 41
+- Model-selection method: repeated 5-fold cross-validation (2 repeats)
+- Hyperparameter search: 8 sampled configurations per tuned model
+- The holdout set was used only once, after model selection.
 
-The objective was to compare multiple regression algorithms to predict automobile prices using 25 vehicle attributes. The models were evaluated using five-fold cross-validation, hyperparameter tuning and an independent test dataset.
+### Selected Model
+**Gradient Boosting**
 
-### 2. Baseline Model
+Selected using the lowest repeated-CV MAE among the tuned candidates.
 
-A Dummy Regressor using the training-set mean was used as the baseline.
+### Final Performance
 
-| Metric | Baseline Result |
+| Metric | Result |
 |---|---:|
-| Test MAE | 8262.03 |
-| Test RMSE | 11488.71 |
-| Test R² | -0.0788 |
+| Repeated-CV MAE | 1535.23 |
+| Repeated-CV MAE standard deviation | 215.06 |
+| Holdout MAE | 1506.68 |
+| Holdout RMSE | 2275.75 |
+| Holdout R² | 0.9577 |
+| Holdout MAPE | 9.55% |
 
-The negative R² indicates that the baseline performed poorly on the test dataset.
+### Bootstrap Intervals
+The empirical 95% bootstrap intervals are reported in the notebook. They are based on resampling the small holdout set and should be interpreted cautiously.
 
-### 3. Initial Model Comparison
+### Selected Estimator Parameters
 
-Five-fold cross-validation results before hyperparameter tuning:
+The selected Gradient Boosting model uses:
 
-| Model | CV Validation MAE | CV MAE Std | CV RMSE | CV R² |
-|---|---:|---:|---:|---:|
-| Gradient Boosting | 1547.92 | 182.09 | 2201.28 | 0.88 |
-| Extra Trees | 1684.87 | 246.16 | 2477.75 | 0.86 |
-| Random Forest | 1700.37 | 203.72 | 2460.36 | 0.85 |
-| Ridge Regression | 1811.63 | 232.70 | 2579.97 | 0.85 |
-| Lasso Regression | 1814.32 | 252.23 | 2703.97 | 0.82 |
-| Linear Regression | 1929.24 | 312.42 | 2660.42 | 0.84 |
-| Decision Tree | 2087.68 | 303.20 | 2863.64 | 0.79 |
+- Learning rate: 0.05
+- Number of estimators: 250
+- Maximum tree depth: 2
+- Minimum samples per leaf: 2
+- Subsample fraction: 0.9
 
-Gradient Boosting achieved the lowest validation MAE among the initial candidate models.
+These parameters were selected through training-only cross-validation.
 
-### 4. Hyperparameter Tuning
+### Metric Interpretation
+MAE is the average absolute prediction error in the dataset's price units. RMSE gives larger errors greater influence. MAPE expresses average relative error but can be unstable for observations with very small actual prices.
 
-RandomizedSearchCV was used with five-fold cross-validation and 12 parameter combinations per candidate model.
-
-| Model | Best CV MAE |
-|---|---:|
-| Gradient Boosting | 1464.09 |
-| Random Forest | 1603.99 |
-| Extra Trees | 1614.13 |
-| Ridge Regression | 1794.03 |
-
-The tuned Gradient Boosting model used:
-- n_estimators: 250
-- learning_rate: 0.05
-- max_depth: 2
-- min_samples_leaf: 2
-- subsample: 0.9
-- random_state: 42
-
-### 5. Final Test-Set Comparison
-
-The tuned models were evaluated on the independent test set containing 41 records.
-
-| Model | Test MAE | Test RMSE | Test R² | Test MAPE |
-|---|---:|---:|---:|---:|
-| Gradient Boosting | 1506.68 | 2275.75 | 0.96 | 9.55% |
-| Extra Trees | 1572.99 | 2610.51 | 0.94 | 9.01% |
-| Random Forest | 1905.28 | 2978.94 | 0.93 | 10.45% |
-| Ridge Regression | 2485.84 | 3742.38 | 0.89 | 14.92% |
-
-### 6. Production Model Recommendation
-
-**Recommended model: Tuned Gradient Boosting Regressor**
-
-Reasons:
-- Lowest test MAE among the tuned models.
-- Lowest test RMSE among the tuned models.
-- Highest test R².
-- Strong five-fold cross-validation performance.
-- Lower prediction error than the other evaluated models on the independent test set.
-
-Extra Trees achieved a slightly lower MAPE, but Gradient Boosting performed better on MAE, RMSE and R². Therefore, Gradient Boosting is selected as the primary model based on the overall evaluation.
-
-### 7. Generalisation and Limitations
-
-The tuned Gradient Boosting model recorded a cross-validation training MAE of 580.91 and validation MAE of 1464.09, giving a generalisation gap of 883.18. This indicates some difference between training and validation performance.
-
-The independent test set contains only 41 records. Results should therefore be interpreted with caution. The dataset represents historical automobile imports from the 1980s and does not establish accuracy for today's automobile market.
-
-External validation on a larger, more recent and representative dataset is recommended before commercial deployment.
-
-### 8. Conclusion
-
-Gradient Boosting provided the strongest overall predictive performance among the evaluated tuned models. It was saved as the final model and its reloaded predictions were verified against the original model predictions.
+### Limitations
+The dataset contains only 201 historical records. It represents an older automobile-import market and does not establish accuracy for current vehicle prices. Feature importance describes predictive association, not causation. External validation on a larger, current dataset is required before operational use.
